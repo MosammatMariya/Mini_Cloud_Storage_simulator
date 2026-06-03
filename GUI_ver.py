@@ -55,7 +55,6 @@ class MiniCloudApp:
 
     def show_start_page(self):
         self.clear()
-
         tk.Label(self.root, text="Mini Cloud Storage Simulator", font=("Arial", 22, "bold")).pack(pady=30)
         tk.Button(self.root, text="Register", width=30, command=self.show_register_page).pack(pady=10)
         tk.Button(self.root, text="Login", width=30, command=self.show_login_page).pack(pady=10)
@@ -67,11 +66,9 @@ class MiniCloudApp:
         tk.Label(self.root, text="Username").pack()
         username_entry = tk.Entry(self.root, width=35)
         username_entry.pack(pady=5)
-
         tk.Label(self.root, text="Password").pack()
         password_entry = tk.Entry(self.root, width=35, show="*")
         password_entry.pack(pady=5)
-
         tk.Label(self.root, text="Storage Quota MB").pack()
         quota_entry = tk.Entry(self.root, width=35)
         quota_entry.pack(pady=5)
@@ -107,7 +104,6 @@ class MiniCloudApp:
             save_users(self.users)
             messagebox.showinfo("Success", "Account created successfully.")
             self.show_start_page()
-
         tk.Button(self.root, text="Create Account", width=25, command=register).pack(pady=15)
         tk.Button(self.root, text="Back", width=25, command=self.show_start_page).pack()
 
@@ -131,7 +127,6 @@ class MiniCloudApp:
                 self.show_dashboard()
             else:
                 messagebox.showerror("Error", "Invalid username or password.")
-
         tk.Button(self.root, text="Login", width=25, command=login).pack(pady=15)
         tk.Button(self.root, text="Back", width=25, command=self.show_start_page).pack()
 
@@ -168,11 +163,9 @@ class MiniCloudApp:
         file_path = filedialog.askopenfilename()
         if file_path == "":
             return
-
         file_name = os.path.basename(file_path)
         file_size = os.path.getsize(file_path) / (1024 * 1024)
         user = self.users[self.current_user]
-
         if user["used_storage"] + file_size > user["quota"]:
             messagebox.showerror("Error", "Storage quota exceeded.")
             return
@@ -203,7 +196,6 @@ class MiniCloudApp:
             "folder": folder_name,
             "uploaded_at": upload_time
         })
-
         user["used_storage"] += file_size
         save_users(self.users)
         messagebox.showinfo("Success", "File uploaded successfully.")
@@ -212,7 +204,6 @@ class MiniCloudApp:
         self.clear()
         tk.Label(self.root, text="My Files", font=("Arial", 18, "bold")).pack(pady=15)
         files = self.users[self.current_user]["files"]
-
         if len(files) == 0:
             tk.Label(self.root, text="No files uploaded.").pack()
         else:
@@ -245,12 +236,10 @@ class MiniCloudApp:
 
     def rename_file(self):
         old_name = simpledialog.askstring("Rename File", "Enter current file name:")
-
         if old_name is None or old_name.strip() == "":
             return
 
         new_name = simpledialog.askstring("Rename File", "Enter new file name:")
-
         if new_name is None or new_name.strip() == "":
             messagebox.showerror("Error", "New file name cannot be empty.")
             return
@@ -260,33 +249,27 @@ class MiniCloudApp:
                 old_path = get_file_path(self.current_user, file_info)
 
                 folder = file_info.get("folder", "Main")
-
                 if folder == "Main":
                     new_path = os.path.join(get_user_folder(self.current_user), new_name)
                 else:
                     new_path = os.path.join(get_user_folder(self.current_user), folder, new_name)
-
                 if os.path.exists(new_path):
                     messagebox.showerror("Error", "A file with that name already exists.")
                     return
 
                 os.rename(old_path, new_path)
-
                 file_info["name"] = new_name
                 save_users(self.users)
-
                 messagebox.showinfo("Success", "File renamed successfully.")
                return
         messagebox.showerror("Error", "File not found.")
 
     def delete_file(self):
         file_name = simpledialog.askstring("Delete File", "Enter file name:")
-
         if file_name is None:
             return
 
         files = self.users[self.current_user]["files"]
-
         for file_info in files:
             if file_info["name"] == file_name:
                 old_path = get_file_path(self.current_user, file_info)
@@ -300,9 +283,7 @@ class MiniCloudApp:
 
                 self.users[self.current_user]["trash"].append(file_info)
                 files.remove(file_info)
-
                 save_users(self.users)
-
                 messagebox.showinfo("Success", "File moved to trash.")
                 return
 
@@ -310,11 +291,8 @@ class MiniCloudApp:
 
     def show_trash(self):
         self.clear()
-
         tk.Label(self.root, text="Trash Bin", font=("Arial", 18, "bold")).pack(pady=15)
-
         trash = self.users[self.current_user]["trash"]
-
         if len(trash) == 0:
             tk.Label(self.root, text="Trash is empty.").pack()
         else:
@@ -327,23 +305,19 @@ class MiniCloudApp:
                     + file_info.get("deleted_at", "Unknown")
                 )
                 tk.Label(self.root, text=text).pack(anchor="w", padx=30)
-
         tk.Button(self.root, text="Back", command=self.show_dashboard).pack(pady=20)
 
     def restore_file(self):
         file_name = simpledialog.askstring("Restore File", "Enter file name:")
-
         if file_name is None:
             return
 
         trash = self.users[self.current_user]["trash"]
-
         for file_info in trash:
             if file_info["name"] == file_name:
                 trash_path = os.path.join(get_user_folder(self.current_user), "Trash", file_name)
 
                 folder = file_info.get("folder", "Main")
-
                 if folder == "Main":
                     restore_path = os.path.join(get_user_folder(self.current_user), file_name)
                 else:
@@ -356,7 +330,6 @@ class MiniCloudApp:
                     return
 
                 shutil.move(trash_path, restore_path)
-
                 if "deleted_at" in file_info:
                     del file_info["deleted_at"]
 
@@ -376,7 +349,6 @@ class MiniCloudApp:
         for file_info in trash:
             if file_info["name"] == file_name:
                 trash_path = os.path.join(get_user_folder(self.current_user), "Trash", file_name)
-
                 if os.path.exists(trash_path):
                     os.remove(trash_path)
 
@@ -410,13 +382,11 @@ class MiniCloudApp:
 
     def create_folder(self):
         folder_name = simpledialog.askstring("Create Folder", "Enter folder name:")
-
         if folder_name is None or folder_name.strip() == "":
             messagebox.showerror("Error", "Folder name cannot be empty.")
             return
 
         folder_path = os.path.join(get_user_folder(self.current_user), folder_name)
-
         if os.path.exists(folder_path):
             messagebox.showerror("Error", "Folder already exists.")
             return
@@ -424,7 +394,6 @@ class MiniCloudApp:
         os.mkdir(folder_path)
         self.users[self.current_user]["folders"].append(folder_name)
         save_users(self.users)
-
         messagebox.showinfo("Success", "Folder created successfully.")
 
     def show_folders(self):
@@ -452,11 +421,9 @@ class MiniCloudApp:
             return
 
         fix_user_data(self.users, receiver)
-
         for file_info in self.users[self.current_user]["files"]:
             if file_info["name"] == file_name:
                 source_path = get_file_path(self.current_user, file_info)
-
                 shared_folder = os.path.join(get_user_folder(receiver), "Shared")
                 os.makedirs(shared_folder, exist_ok=True)
                 destination = os.path.join(shared_folder, file_name)
@@ -495,7 +462,6 @@ class MiniCloudApp:
     def storage_info(self):
         user = self.users[self.current_user]
         remaining = user["quota"] - user["used_storage"]
-
         message = (
             "Total Quota: " + str(user["quota"]) + " MB\n"
             "Used Storage: " + str(round(user["used_storage"], 2)) + " MB\n"
